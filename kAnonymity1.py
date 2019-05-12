@@ -112,7 +112,7 @@ def partition_dataset(df, feature_columns, sensitive_column, scale, is_valid):
             finished_partitions.append(partition)
     return finished_partitions
 
-feature_columns = ['age', 'marital-status']
+feature_columns = ['age', 'education-num', 'marital-status']
 sensitive_column = 'income'
 finished_partitions = partition_dataset(df, feature_columns, sensitive_column, full_spans, is_k_anonymous)
 
