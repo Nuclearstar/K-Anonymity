@@ -1,6 +1,13 @@
 import pandas as pd
 import matplotlib.pylab as pl
 import matplotlib.patches as patches
+import sys
+
+numeric=0
+if len(sys.argv) >= 2:
+    numeric=1
+    print(" This run is for Numeric data for martial-status")
+
 
 names = (
     'age',
@@ -23,7 +30,7 @@ names = (
 categorical = set((
     'workclass',
     'education',
-    'marital-status',
+#    'marital-status',
     'occupation',
     'relationship',
     'sex',
@@ -31,9 +38,27 @@ categorical = set((
     'race',
     'income',
 ))
-df = pd.read_csv("./data/k-anonymity/adult.all.txt", sep=", ", header=None, names=names, index_col=False, engine='python');
 
-print(df.head())
+
+
+if numeric==0:
+    df = pd.read_csv("./data/k-anonymity/adult.all.txt", sep=", ", header=None, names=names, index_col=False, engine='python');
+    categorical = set((
+    'workclass',
+    'education',
+    'marital-status',
+    'occupation',
+    'relationship',
+    'sex',
+    'native-country',
+    'race',
+    'income',
+    ))
+
+else:
+    df = pd.read_csv("./data/k-anonymity/adult.all.txt.before", sep=", ", header=None, names=names, index_col=False, engine='python');
+
+#print(df.head())
 
 for name in categorical:
     df[name] = df[name].astype('category')
@@ -51,7 +76,7 @@ def get_spans(df, partition, scale=None):
     return spans
     
 full_spans = get_spans(df, df.index)
-print(full_spans)
+#print(full_spans)
 
 def split(df, partition, column):
     dfp = df[column][partition]
@@ -87,10 +112,11 @@ def partition_dataset(df, feature_columns, sensitive_column, scale, is_valid):
             finished_partitions.append(partition)
     return finished_partitions
 
-feature_columns = ['age', 'education-num']
+feature_columns = ['age', 'marital-status']
 sensitive_column = 'income'
 finished_partitions = partition_dataset(df, feature_columns, sensitive_column, full_spans, is_k_anonymous)
 
+print("finished_partition")
 print(len(finished_partitions))
 
 def build_indexes(df):
@@ -134,7 +160,6 @@ column_x, column_y = feature_columns[:2]
 rects = get_partition_rects(df, finished_partitions, column_x, column_y, indexes, offsets=[0.0, 0.0])
 
 print(rects[:10])
-
 def plot_rects(df, ax, rects, column_x, column_y, edgecolor='black', facecolor='none'):
     for (xl, yl),(xr, yr) in rects:
         ax.add_patch(patches.Rectangle((xl,yl),xr-xl,yr-yl,linewidth=1,edgecolor=edgecolor,facecolor=facecolor, alpha=0.5))
@@ -147,7 +172,8 @@ pl.figure(figsize=(20,20))
 ax = pl.subplot(111)
 plot_rects(df, ax, rects, column_x, column_y, facecolor='r')
 pl.scatter(df[column_x], df[column_y])
-pl.show()
+#pl.show()
+
 
 def agg_categorical_column(series):
     return [','.join(set(series))]
@@ -184,8 +210,12 @@ def build_anonymized_dataset(df, partitions, feature_columns, sensitive_column, 
 
 dfn = build_anonymized_dataset(df, finished_partitions, feature_columns, sensitive_column)
 
-print(dfn.sort_values(feature_columns+[sensitive_column]))
 
+print("result====")
+#print(dfn.sort_values(feature_columns+[sensitive_column]))
+
+print(dfn)
+exit()
 def diversity(df, partition, column):
     return len(df[column][partition].unique())
 
