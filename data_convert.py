@@ -43,4 +43,4 @@ distance_race = load_distance('race')
 
 df = load_data("finalConditionInfo", distance_condition, distance_ethnic, distance_gender, distance_race)
 
-print(df.head(5))
+df.to_csv('./data_convert/data_convert.csv', sep='\t', encoding='utf-8', index=False)
